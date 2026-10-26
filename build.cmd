@@ -10,5 +10,5 @@ if not exist dnlib.dll (
     echo dnlib.dll not found in current directory. Download the net45 build from https://www.nuget.org/packages/dnlib and place it here.
     exit /b 1
 )
-"%CSC%" /nologo /target:exe /out:patch.exe /r:dnlib.dll src\patch.cs || exit /b 1
+"%CSC%" /nologo /target:exe /out:patch.exe /optimize+ /r:dnlib.dll /resource:dnlib.dll,dnlib.dll src\patch.cs || exit /b 1
 echo Build OK: patch.exe

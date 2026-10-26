@@ -3,3 +3,16 @@ obj/
 *.exe
 *.bak
 dnlib.dll
+
+# 临时分析工作区
+_work/
+_work2/
+_work3/
+_ref_other/
+dump_*.txt
+
+# 方案文档：本地保留，不入库
+docs/
+
+# 打包产物
+*.zip
