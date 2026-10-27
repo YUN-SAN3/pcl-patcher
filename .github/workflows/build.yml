@@ -1,0 +1,40 @@
+name: Build PCL Patcher
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Framework 4.0 Targeting Pack
+        shell: pwsh
+        run: |
+          $sdkUrl = "https://www.nuget.org/api/v2/package/Microsoft.NETFramework.ReferenceAssemblies.net40/1.0.3"
+          $sdkZip = "$env:TEMP\net40sdk.zip"
+          Invoke-WebRequest -Uri $sdkUrl -OutFile $sdkZip
+          Expand-Archive -Path $sdkZip -DestinationPath "$env:TEMP\net40sdk" -Force
+          $targetPath = "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0"
+          New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
+          Copy-Item -Path "$env:TEMP\net40sdk\build\.NETFramework\v4.0\*" -Destination $targetPath -Recurse -Force
+
+      - name: Prepare dnlib.dll
+        shell: pwsh
+        run: |
+          $dnlibUrl = "https://www.nuget.org/api/v2/package/dnlib/4.5.0"
+          Invoke-WebRequest -Uri $dnlibUrl -OutFile "$env:TEMP\dnlib.zip"
+          Expand-Archive -Path "$env:TEMP\dnlib.zip" -DestinationPath "$env:TEMP\dnlib" -Force
+          Copy-Item -Path "$env:TEMP\dnlib\lib\net45\dnlib.dll" -Destination .
+
+      - name: Compile patch.exe
+        shell: cmd
+        run: |
+          set CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe
+          "%CSC%" /nologo /target:exe /out:patch.exe /optimize+ /r:dnlib.dll /resource:dnlib.dll,dnlib.dll src\patch.cs
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patch-exe
+          path: patch.exe
