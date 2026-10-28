@@ -1,4 +1,4 @@
-# pcl-patcher
+# pcl2-patcher
 
 解锁 Plain Craft Launcher 2（PCL2）中因 `ModSecret.RestrictMcDownload` 而被**编译期移除**的 MC 下载与整合包安装功能。
 
